@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="LynowMic-0.1-alpha/images/lynow-banner.png" alt="Lynow Mic" width="100%">
+  <img src="LynowMic-0.1-alpha/images/lynow-banner-final.png" alt="Lynow Mic" width="100%">
 </p>
 
 <p align="center">
