@@ -1,0 +1,73 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    
+    <!-- Squircle / Circular Badge in Deep Royal Violet / Purple -->
+    <path
+        android:fillColor="#4E26E2"
+        android:pathData="M54,4 C84,4 104,24 104,54 C104,84 84,104 54,104 C24,104 4,84 4,54 C4,24 24,4 54,4 Z"/>
+
+    <!-- Subtle Inner Gradient Depth Ring -->
+    <path
+        android:fillColor="#3A17B8"
+        android:pathData="M54,8 C80,8 100,28 100,54 C100,80 80,100 54,100 C28,100 8,80 8,54 C8,28 28,8 54,8 Z"/>
+
+    <!-- Hummingbird Eye & Head Details -->
+    <!-- Long Slender Beak Pointing Left -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M22,46 L40,43 L40,45 Z"/>
+
+    <!-- Hummingbird Crown Crest / Feathers on Head -->
+    <path
+        android:fillColor="#EDE9FE"
+        android:pathData="M44,38 C43,30 46,24 51,20 C48,25 48,31 46,36 Z"/>
+    <path
+        android:fillColor="#C4B5FD"
+        android:pathData="M48,39 C49,32 54,26 60,22 C56,27 55,33 51,37 Z"/>
+    <path
+        android:fillColor="#A78BFA"
+        android:pathData="M51,40 C55,34 62,29 68,26 C63,31 60,37 54,39 Z"/>
+
+    <!-- Hummingbird Head & Body Silhouette -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M38,44 C42,40 48,40 52,43 C58,47 62,55 64,65 C62,72 58,76 54,77 C48,76 44,70 42,62 C40,54 38,48 38,44 Z"/>
+
+    <!-- Throat Feather Texture (Gorget) -->
+    <path
+        android:fillColor="#2E1065"
+        android:pathData="M42,50 C44,52 48,53 50,51 C48,55 45,56 43,53 Z"/>
+
+    <!-- Right Upward Spread Wing (Detailed Layered Primaries) -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M52,45 C56,36 68,22 84,18 C78,28 72,40 64,52 C60,49 56,47 52,45 Z"/>
+    <path
+        android:fillColor="#EDE9FE"
+        android:pathData="M56,48 C62,38 74,26 88,24 C82,34 76,46 66,54 Z"/>
+    <path
+        android:fillColor="#DDD6FE"
+        android:pathData="M58,52 C66,43 78,33 90,32 C84,41 78,51 68,58 Z"/>
+
+    <!-- Left Forward Wing -->
+    <path
+        android:fillColor="#C4B5FD"
+        android:pathData="M46,44 C48,36 56,28 66,24 C62,33 58,42 52,48 Z"/>
+
+    <!-- Ornate Tail Feathers (Peacock / Phoenix Style Flourish) -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M54,75 C56,82 62,90 72,94 C65,92 58,86 54,80 Z"/>
+    <path
+        android:fillColor="#EDE9FE"
+        android:pathData="M52,76 C48,84 38,91 26,92 C34,89 44,83 50,78 Z"/>
+    <path
+        android:fillColor="#DDD6FE"
+        android:pathData="M48,74 C40,80 32,84 20,83 C28,81 38,76 46,73 Z"/>
+    <path
+        android:fillColor="#A78BFA"
+        android:pathData="M55,77 C62,85 74,90 86,88 C76,87 66,82 56,77 Z"/>
+</vector>

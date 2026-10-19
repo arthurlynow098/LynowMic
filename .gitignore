@@ -1,0 +1,50 @@
+# SDKs, toolchains and caches downloaded only for local builds
+/.android-sdk/
+/.android-tools-unpacked/
+/.dotnet/
+/.dotnet-home/
+/.gradle-home/
+/.jdk17/
+/.nuget-packages/
+/android-tools.zip
+/jdk17.zip
+/dotnet-install.ps1
+
+# Build outputs
+**/bin/
+**/obj/
+**/build/
+**/.gradle/
+**/.idea/
+**/local.properties
+**/releases/
+*.user
+*.jks
+*.keystore
+
+# Compiled downloads belong in GitHub Releases, not in Git history
+/LynowMic.exe
+/LynowMic.exe.sha256
+/LynowMic-android-alpha.apk
+/LynowMic-0.1-alpha/Windows/LynowMic.exe
+/LynowMic-0.1-alpha/Windows/.LynowMic.exe.*
+/LynowMic-0.1-alpha/Windows/LynowMic.exe.sha256
+/LynowMic-0.1-alpha/Android/*.apk
+
+# Local verification captures and helper artifacts
+/site-preview*.png
+/site-animation-preview.png
+/site-scroll-preview.png
+/verification-*.png
+/windows-app-screenshot.png
+/logo-titlebar-check.png
+/exe-icon-current.png
+/LynowMic-fixed.exe
+/NuGet.Config
+/create_icon.cs
+/gen_ico.ps1
+/build_app.bat
+/powershell.bat
+/powershell.cmd
+/AndroidManifest.xml
+/res/
