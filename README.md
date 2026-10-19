@@ -1,6 +1,8 @@
 <p align="center">
-  <img src="LynowMic-0.1-alpha/images/lynow-brand.svg" alt="Lynow Mic" width="100%">
+  <img src="LynowMic-0.1-alpha/images/lynow-logo.jpg" alt="Logo oficial do Lynow Mic" width="180">
 </p>
+
+<h1 align="center">Lynow Mic</h1>
 
 <p align="center">
   Transforme o microfone do seu celular Android em uma fonte de áudio para o Windows pela rede local.
