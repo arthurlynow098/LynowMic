@@ -1,3 +1,9 @@
+<p align="center"><img src="https://raw.githubusercontent.com/arthurlynow098/arthurlynow098/main/assets/ars-codex-banner.png" alt="Arthur Mendes Entsev — gravura alquímica minimalista" width="100%"></p>
+
+<p align="center"><sub>☉ &nbsp; ARS CODEX &nbsp; · &nbsp; LynowMic &nbsp; ☽</sub></p>
+
+---
+
 <p align="center">
   <img src="LynowMic-0.1-alpha/images/lynow-banner-v2.png" alt="Lynow Mic" width="100%">
 </p>
@@ -172,3 +178,7 @@ O executável Windows ainda não possui assinatura Authenticode comercial, e o A
 ## Licença
 
 Distribuído sob a [licença MIT](LynowMic-0.1-alpha/Codigo-fonte/LICENSE). As licenças das bibliotecas utilizadas estão reunidas no diretório [`licenses`](LynowMic-0.1-alpha/Codigo-fonte/licenses).
+
+---
+
+<p align="center"><sub>☿ &nbsp; Estudo · construção · evolução &nbsp; ☿</sub><br><a href="https://github.com/arthurlynow098">Perfil</a> · <a href="https://arthurentsev.vercel.app/">Portfólio</a></p>
