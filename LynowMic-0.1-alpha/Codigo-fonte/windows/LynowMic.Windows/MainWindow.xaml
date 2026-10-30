@@ -1,0 +1,482 @@
+<Window x:Class="LynowMic.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Lynow Mic"
+        Width="1080" Height="780"
+        MinWidth="960" MinHeight="720"
+        WindowStartupLocation="CenterScreen"
+        WindowStyle="None"
+        AllowsTransparency="True"
+        Background="Transparent">
+
+    <Window.Resources>
+        <!-- Keep native dropdowns readable in both light Windows popups and the dark app. -->
+        <SolidColorBrush x:Key="{x:Static SystemColors.WindowBrushKey}" Color="#F4F3F7"/>
+        <SolidColorBrush x:Key="{x:Static SystemColors.WindowTextBrushKey}" Color="#171222"/>
+        <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" Color="#D9CCFF"/>
+        <SolidColorBrush x:Key="{x:Static SystemColors.HighlightTextBrushKey}" Color="#171222"/>
+        <Style TargetType="ComboBox">
+            <Setter Property="Foreground" Value="#171222"/>
+            <Setter Property="Background" Value="#F4F3F7"/>
+            <Setter Property="BorderBrush" Value="#5A5570"/>
+            <Setter Property="TextElement.Foreground" Value="#171222"/>
+            <Style.Triggers>
+                <Trigger Property="IsEnabled" Value="False">
+                    <Setter Property="Opacity" Value="1"/>
+                    <Setter Property="Foreground" Value="#514C63"/>
+                    <Setter Property="TextElement.Foreground" Value="#514C63"/>
+                    <Setter Property="Background" Value="#DDD9E5"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+        <Style TargetType="ComboBoxItem">
+            <Setter Property="Foreground" Value="#171222"/>
+            <Setter Property="Background" Value="#F4F3F7"/>
+            <Setter Property="Padding" Value="6,5"/>
+            <Style.Triggers>
+                <Trigger Property="IsHighlighted" Value="True">
+                    <Setter Property="Background" Value="#D9CCFF"/>
+                    <Setter Property="Foreground" Value="#171222"/>
+                </Trigger>
+                <Trigger Property="IsSelected" Value="True">
+                    <Setter Property="Background" Value="#C4B5FD"/>
+                    <Setter Property="Foreground" Value="#171222"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+    </Window.Resources>
+
+    <WindowChrome.WindowChrome>
+        <WindowChrome CaptionHeight="0" ResizeBorderThickness="6" GlassFrameThickness="0" CornerRadius="16"/>
+    </WindowChrome.WindowChrome>
+
+    <!-- Outer Frame with Rounded Corners & Subtle Neon Border -->
+    <Border Background="#0C0B14" BorderBrush="#25213E" BorderThickness="1" CornerRadius="16" SnapsToDevicePixels="True">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="42"/> <!-- Custom Title Bar -->
+                <RowDefinition Height="Auto"/> <!-- Main Header with Logo & Toggle -->
+                <RowDefinition Height="*"/>    <!-- Oscilloscope & VU Meter -->
+                <RowDefinition Height="Auto"/> <!-- Cards: Device Connection & Routing -->
+                <RowDefinition Height="38"/>   <!-- Bottom Status Bar -->
+            </Grid.RowDefinitions>
+
+            <!-- ========================================== -->
+            <!-- 01. CUSTOM WINDOW TITLE BAR                -->
+            <!-- ========================================== -->
+            <Grid Grid.Row="0" Background="#0E0D18" MouseDown="Header_MouseDown">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <!-- Left App Branding in Title Bar -->
+                <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center" Margin="14,0,0,0">
+                    <Border Width="22" Height="22" CornerRadius="11" Background="#4E26E2" Margin="0,0,8,0" ClipToBounds="True">
+                        <Image x:Name="TitleBarLogoImage" Stretch="UniformToFill">
+                            <Image.Clip>
+                                <EllipseGeometry Center="11,11" RadiusX="10.5" RadiusY="10.5"/>
+                            </Image.Clip>
+                        </Image>
+                    </Border>
+                    <TextBlock Text="Lynow Mic" FontSize="12" FontWeight="SemiBold" Foreground="#DDD9F0" VerticalAlignment="Center"/>
+                </StackPanel>
+
+                <!-- Right Window Control Buttons -->
+                <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,10,0">
+                    <!-- Settings Gear Button -->
+                    <Button Click="Settings_Click" Width="36" Height="32" Background="Transparent" Foreground="#9D98BA" ToolTip="Configurações &amp; Guia Rápido" Margin="0,0,6,0" Padding="0">
+                        <Viewbox Width="16" Height="16">
+                            <Canvas Width="24" Height="24">
+                                <Path Fill="#A5A0C2" Data="M12,15.5A3.5,3.5 0 0,1 8.5,12A3.5,3.5 0 0,1 12,8.5A3.5,3.5 0 0,1 15.5,12A3.5,3.5 0 0,1 12,15.5M19.43,12.97C19.47,12.65 19.5,12.33 19.5,12C19.5,11.67 19.47,11.34 19.43,11L21.54,9.37C21.73,9.22 21.78,8.95 21.66,8.73L19.66,5.27C19.54,5.05 19.27,4.96 19.05,5.05L16.56,6.05C16.04,5.66 15.5,5.32 14.87,5.07L14.5,2.42C14.46,2.18 14.25,2 14,2H10C9.75,2 9.54,2.18 9.5,2.42L9.13,5.07C8.5,5.32 7.96,5.66 7.44,6.05L4.95,5.05C4.73,4.96 4.46,5.05 4.34,5.27L2.34,8.73C2.21,8.95 2.27,9.22 2.46,9.37L4.57,11C4.53,11.34 4.5,11.67 4.5,12C4.5,12.33 4.53,12.65 4.57,12.97L2.46,14.63C2.27,14.78 2.21,15.05 2.34,15.27L4.34,18.73C4.46,18.95 4.73,19.03 4.95,18.95L7.44,17.94C7.96,18.34 8.5,18.68 9.13,18.93L9.5,21.58C9.54,21.82 9.75,22 10,22H14C14.25,22 14.46,21.82 14.5,21.58L14.87,18.93C15.5,18.67 16.04,18.34 16.56,17.94L19.05,18.95C19.27,19.03 19.54,18.95 19.66,18.73L21.66,15.27C21.78,15.05 21.73,14.78 21.54,14.63L19.43,12.97Z"/>
+                            </Canvas>
+                        </Viewbox>
+                    </Button>
+
+                    <!-- Minimize Button -->
+                    <Button Click="Minimize_Click" Width="36" Height="30" Background="Transparent" Foreground="#8B86A8" ToolTip="Minimizar" Padding="0">
+                        <Rectangle Width="10" Height="1.5" Fill="#9D98BA" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    </Button>
+
+                    <!-- Maximize Button (Clean Sharp Square, never distorted) -->
+                    <Button Click="Maximize_Click" Width="36" Height="30" Background="Transparent" Foreground="#8B86A8" ToolTip="Maximizar" Padding="0">
+                        <Rectangle Width="10" Height="10" Stroke="#9D98BA" StrokeThickness="1.5" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    </Button>
+
+                    <!-- Close Button -->
+                    <Button Click="Close_Click" Width="36" Height="30" Background="Transparent" Foreground="#8B86A8" ToolTip="Fechar" Padding="0">
+                        <Viewbox Width="10" Height="10">
+                            <Canvas Width="12" Height="12">
+                                <Line X1="1" Y1="1" X2="11" Y2="11" Stroke="#9D98BA" StrokeThickness="1.8" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
+                                <Line X1="11" Y1="1" X2="1" Y2="11" Stroke="#9D98BA" StrokeThickness="1.8" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
+                            </Canvas>
+                        </Viewbox>
+                    </Button>
+                </StackPanel>
+            </Grid>
+
+            <!-- ========================================== -->
+            <!-- 02. MAIN HEADER (LOGO + TITLE + CONTROLS)  -->
+            <!-- ========================================== -->
+            <Grid Grid.Row="1" Margin="24,14,24,14">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <!-- Left: Circular Logo & Large Title -->
+                <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
+                    <!-- Circular Hummingbird Badge with Purple Glow -->
+                    <Border Width="56" Height="56" CornerRadius="28" Margin="0,0,16,0" BorderBrush="#5B2DEE" BorderThickness="2" ClipToBounds="True" Background="#38139C">
+                        <Grid>
+                            <!-- Image Logo with Clean Circular Clip -->
+                            <Image x:Name="HeaderLogoImage" Stretch="UniformToFill" Opacity="0.95">
+                                <Image.Clip>
+                                    <EllipseGeometry Center="28,28" RadiusX="28" RadiusY="28"/>
+                                </Image.Clip>
+                            </Image>
+                            <Path x:Name="HeaderLogoVector"
+                                  Data="M15,35 C17,25 24,18 36,14 C32,21 30,28 26,34 C21,32 17,34 15,35 Z M26,20 C32,15 42,12 45,10 C42,15 37,22 34,26 C31,23 28,21 26,20 Z"
+                                  Fill="#FFFFFF" Stretch="Uniform" Margin="12" Visibility="Collapsed"/>
+                        </Grid>
+                    </Border>
+
+                    <!-- App Name Title -->
+                    <TextBlock Text="LYNOW MIC" FontSize="28" FontWeight="ExtraBold" Foreground="#FFFFFF" VerticalAlignment="Center"/>
+                </StackPanel>
+
+                <!-- Right: Action Buttons (Distort & Toggle Switch) -->
+                <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,4,0">
+                    <!-- Distort Button -->
+                    <Button x:Name="MuteButton" Content="Distort" Click="Mute_Click"
+                            Background="#532EE5" Foreground="#FFFFFF" FontWeight="Bold" FontSize="13"
+                            Padding="22,8" Margin="0,0,18,0" Height="36">
+                        <Button.Resources>
+                            <Style TargetType="Border">
+                                <Setter Property="CornerRadius" Value="8"/>
+                            </Style>
+                        </Button.Resources>
+                    </Button>
+
+                    <!-- Toggle Label & Pill Switch -->
+                    <TextBlock Text="Toggle" FontSize="13" Foreground="#C8C4E0" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                    <Border x:Name="MainToggleSwitch" Width="48" Height="26" CornerRadius="13" Background="#5B2DEE" Cursor="Hand" MouseDown="Toggle_MouseDown" VerticalAlignment="Center">
+                        <Grid Margin="3">
+                            <Ellipse x:Name="ToggleKnob" Width="20" Height="20" Fill="#FFFFFF" HorizontalAlignment="Right">
+                                <Ellipse.Effect>
+                                    <DropShadowEffect BlurRadius="4" ShadowDepth="1" Opacity="0.3"/>
+                                </Ellipse.Effect>
+                            </Ellipse>
+                        </Grid>
+                    </Border>
+                </StackPanel>
+            </Grid>
+
+            <!-- ========================================== -->
+            <!-- 03. OSCILLOSCOPE WAVEFORM & VERTICAL VU    -->
+            <!-- ========================================== -->
+            <Border Grid.Row="2" Margin="24,0,24,14" Background="#0F0D1C" BorderBrush="#201C38" BorderThickness="1" CornerRadius="12">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>     <!-- Waveform Canvas -->
+                        <ColumnDefinition Width="90"/>    <!-- Vertical VU LED Meter -->
+                    </Grid.ColumnDefinitions>
+
+                    <!-- Oscilloscope Subtle Background Grid -->
+                    <Grid Grid.Column="0" Margin="16,14,0,14" SnapsToDevicePixels="True">
+                        <!-- Horizontal Grid Lines -->
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="*"/><RowDefinition Height="*"/><RowDefinition Height="*"/><RowDefinition Height="*"/>
+                            <RowDefinition Height="*"/><RowDefinition Height="*"/><RowDefinition Height="*"/><RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+                        <Border Grid.Row="0" BorderBrush="#161426" BorderThickness="0,0,0,1"/>
+                        <Border Grid.Row="1" BorderBrush="#161426" BorderThickness="0,0,0,1"/>
+                        <Border Grid.Row="2" BorderBrush="#161426" BorderThickness="0,0,0,1"/>
+                        <Border Grid.Row="3" BorderBrush="#1D1A33" BorderThickness="0,0,0,1"/> <!-- Center Zero Line -->
+                        <Border Grid.Row="4" BorderBrush="#161426" BorderThickness="0,0,0,1"/>
+                        <Border Grid.Row="5" BorderBrush="#161426" BorderThickness="0,0,0,1"/>
+                        <Border Grid.Row="6" BorderBrush="#161426" BorderThickness="0,0,0,1"/>
+
+                        <!-- Glowing Multi-Strand Sine Wave Canvas -->
+                        <Canvas x:Name="WaveCanvas" Grid.RowSpan="8" ClipToBounds="True" SizeChanged="WaveCanvas_SizeChanged">
+                            <!-- Background Glow Wave (Deep Purple) -->
+                            <Path x:Name="WaveGlowPath" Stroke="#5B2DEE" StrokeThickness="8" Opacity="0.35"/>
+                            <!-- Wave Strand 1 -->
+                            <Path x:Name="WavePath1" Stroke="#7B4DFF" StrokeThickness="2.8" Opacity="0.85"/>
+                            <!-- Wave Strand 2 -->
+                            <Path x:Name="WavePath2" Stroke="#9D7AFF" StrokeThickness="2.2" Opacity="0.95"/>
+                            <!-- Wave Strand 3 -->
+                            <Path x:Name="WavePath3" Stroke="#C4B5FD" StrokeThickness="1.6" Opacity="0.70"/>
+                            <!-- Wave Strand 4 (Core Bright White/Violet) -->
+                            <Path x:Name="WavePath4" Stroke="#EDE9FE" StrokeThickness="1.2" Opacity="0.95"/>
+                        </Canvas>
+                    </Grid>
+
+                    <!-- Vertical dBFS LED Segment Meter -->
+                    <Grid Grid.Column="1" Margin="8,14,14,14">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/> <!-- dB Labels -->
+                            <ColumnDefinition Width="*"/>    <!-- Stacked LED Bars -->
+                            <ColumnDefinition Width="Auto"/> <!-- Peak Indicator Triangle -->
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+
+                        <!-- Vertical dB Labels -->
+                        <Grid Grid.Column="0" Margin="0,0,8,0">
+                            <TextBlock Text="0dB" FontSize="10" Foreground="#8B86A8" VerticalAlignment="Top"/>
+                            <TextBlock Text="-5" FontSize="10" Foreground="#8B86A8" VerticalAlignment="Top" Margin="0,32,0,0"/>
+                            <TextBlock Text="-10" FontSize="10" Foreground="#8B86A8" VerticalAlignment="Top" Margin="0,64,0,0"/>
+                            <TextBlock Text="-15" FontSize="10" Foreground="#8B86A8" VerticalAlignment="Top" Margin="0,96,0,0"/>
+                            <TextBlock Text="-20" FontSize="10" Foreground="#8B86A8" VerticalAlignment="Top" Margin="0,128,0,0"/>
+                            <TextBlock Text="-25" FontSize="10" Foreground="#8B86A8" VerticalAlignment="Top" Margin="0,160,0,0"/>
+                            <TextBlock Text="-30" FontSize="10" Foreground="#8B86A8" VerticalAlignment="Top" Margin="0,192,0,0"/>
+                            <TextBlock Text="-dB" FontSize="10" Foreground="#8B86A8" VerticalAlignment="Bottom"/>
+                        </Grid>
+
+                        <!-- 30 Stacked LED Segment Bars -->
+                        <StackPanel x:Name="LedMeterStack" Grid.Column="1" VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
+                            <!-- Populated dynamically or styled with gradient segments -->
+                        </StackPanel>
+
+                        <!-- Peak Indicator Marker (Pink Triangle) -->
+                        <Canvas Grid.Column="2" Width="10" ClipToBounds="False">
+                            <Path x:Name="PeakMarker" Data="M0,5 L8,0 L8,10 Z" Fill="#F43F5E" Canvas.Top="60">
+                                <Path.Effect>
+                                    <DropShadowEffect BlurRadius="6" Color="#F43F5E" ShadowDepth="0" Opacity="0.8"/>
+                                </Path.Effect>
+                            </Path>
+                        </Canvas>
+
+                        <!-- Bottom Labels: Low & dBFS -->
+                        <Grid Grid.Row="1" Grid.ColumnSpan="3" Margin="0,8,0,0">
+                            <TextBlock Text="Low" FontSize="10" Foreground="#8B86A8" HorizontalAlignment="Left"/>
+                            <TextBlock x:Name="LevelText" Text="dBFS" FontSize="10" FontWeight="Bold" Foreground="#8B86A8" HorizontalAlignment="Right"/>
+                        </Grid>
+                    </Grid>
+                </Grid>
+            </Border>
+
+            <!-- Hidden Standard Controls for Full Functional Compatibility -->
+            <ProgressBar x:Name="LevelMeter" Visibility="Collapsed"/>
+            <TextBlock x:Name="SessionTime" Visibility="Collapsed"/>
+            <TextBlock x:Name="GainText" Visibility="Collapsed"/>
+            <Slider x:Name="GainSlider" Minimum="0" Maximum="200" Value="100" Visibility="Collapsed" ValueChanged="Gain_Changed"/>
+
+            <!-- ========================================== -->
+            <!-- 04. BOTTOM TWO FEATURE CARDS               -->
+            <!-- ========================================== -->
+            <Grid Grid.Row="3" Margin="24,0,24,14">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="18"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <!-- CARD 1: DEVICE CONNECTION -->
+                <Border Grid.Column="0" Background="#110F20" BorderBrush="#231E3D" BorderThickness="1" CornerRadius="12" Padding="20,16" MinHeight="220">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+
+                        <!-- Card Header: Title & Toggle -->
+                        <Grid Grid.Row="0" Margin="0,0,0,14">
+                            <TextBlock Text="Device Connection" FontSize="16" FontWeight="Bold" Foreground="#FFFFFF" VerticalAlignment="Center"/>
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
+                                <TextBlock x:Name="DeviceToggleLabel" Text="Off" FontSize="12" Foreground="#8B86A8" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                                <Border x:Name="DeviceToggleBorder" Width="38" Height="20" CornerRadius="10" Background="#282346" Cursor="Hand" MouseDown="DeviceToggle_MouseDown">
+                                    <Ellipse x:Name="DeviceToggleKnob" Width="14" Height="14" Fill="#A5A0C2" HorizontalAlignment="Left" Margin="3,0,0,0"/>
+                                </Border>
+                            </StackPanel>
+                        </Grid>
+
+                        <!-- Card Content: QR Code + Status & Show Code -->
+                        <Grid Grid.Row="1">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="136"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <!-- QR Code White Rounded Card -->
+                            <Border Grid.Column="0" Width="130" Height="130" Background="#FFFFFF" CornerRadius="12" HorizontalAlignment="Left" VerticalAlignment="Top">
+                                <Grid>
+                                    <Image x:Name="QrImage" Width="118" Height="118" RenderOptions.BitmapScalingMode="NearestNeighbor"/>
+                                    <TextBlock x:Name="QrPlaceholder" Text="PREPARE A&#10;CONEXÃO" FontSize="10" FontWeight="Bold" TextAlignment="Center" Foreground="#4E26E2" VerticalAlignment="Center"/>
+                                </Grid>
+                            </Border>
+
+                            <!-- Pairing Info Column -->
+                            <StackPanel Grid.Column="1" VerticalAlignment="Top" Margin="14,0,0,0">
+                                <TextBlock Text="SCAN TO PAIR MOBILE MIC" FontSize="10" FontWeight="Bold" Foreground="#8B86A8"/>
+                                
+                                <!-- Luminous Green / Purple Connected Status Dot -->
+                                <StackPanel Orientation="Horizontal" Margin="0,8,0,10" VerticalAlignment="Center">
+                                    <Ellipse x:Name="StatusDot" Width="8" Height="8" Fill="#10B981" Margin="0,0,8,0">
+                                        <Ellipse.Effect>
+                                            <DropShadowEffect Color="#10B981" BlurRadius="6" ShadowDepth="0" Opacity="0.9"/>
+                                        </Ellipse.Effect>
+                                    </Ellipse>
+                                    <TextBlock x:Name="Badge" Text="Conectado" FontSize="12" FontWeight="SemiBold" Foreground="#E0DCF5"/>
+                                </StackPanel>
+
+                                <!-- Endpoint / Phone Name -->
+                                <TextBlock x:Name="PhoneName" Text="Esperando seu celular" FontSize="11" Foreground="#8B86A8" Margin="0,0,0,6" TextTrimming="CharacterEllipsis"/>
+                                <TextBlock x:Name="Endpoint" Text="Na mesma rede local" FontSize="10" Foreground="#6A6588" Margin="0,0,0,12" TextWrapping="Wrap"/>
+
+                                <!-- Show Code / Copy Button -->
+                                <Button x:Name="CopyButton" Click="Copy_Click"
+                                        Background="#1C1833" BorderBrush="#2D2750" BorderThickness="1"
+                                        Foreground="#E0DCF5" FontSize="12" FontWeight="SemiBold" Height="38" Width="130" Padding="0" HorizontalAlignment="Left">
+                                    <Button.Resources>
+                                        <Style TargetType="Border"><Setter Property="CornerRadius" Value="8"/></Style>
+                                    </Button.Resources>
+                                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Center">
+                                        <TextBlock Text="ⓘ" Margin="0,0,6,0" FontSize="12" VerticalAlignment="Center"/>
+                                        <TextBlock Text="Show Code" VerticalAlignment="Center"/>
+                                    </StackPanel>
+                                </Button>
+                            </StackPanel>
+                        </Grid>
+                    </Grid>
+                </Border>
+
+                <!-- CARD 2: NETWORK & ROUTING -->
+                <Border Grid.Column="2" Background="#110F20" BorderBrush="#231E3D" BorderThickness="1" CornerRadius="12" Padding="20,16" MinHeight="220">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+
+                        <!-- Card Header: Title & Toggle -->
+                        <Grid Grid.Row="0" Margin="0,0,0,12">
+                            <TextBlock Text="Network &amp; Routing" FontSize="16" FontWeight="Bold" Foreground="#FFFFFF" VerticalAlignment="Center"/>
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
+                                <TextBlock Text="On" FontSize="12" Foreground="#C8C4E0" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                                <Border Width="38" Height="20" CornerRadius="10" Background="#5B2DEE">
+                                    <Ellipse Width="14" Height="14" Fill="#FFFFFF" HorizontalAlignment="Right" Margin="0,0,3,0"/>
+                                </Border>
+                            </StackPanel>
+                        </Grid>
+
+                        <!-- Dropdowns and Action Buttons -->
+                        <StackPanel Grid.Row="1">
+                            <!-- Select Network -->
+                            <TextBlock Text="Select Network" FontSize="11" Foreground="#8B86A8" Margin="0,0,0,4"/>
+                            <ComboBox x:Name="Networks" Height="34" Margin="0,0,0,10" Foreground="#000000" TextElement.Foreground="#000000">
+                                <ComboBox.ItemTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding Label}" Foreground="#000000"/>
+                                    </DataTemplate>
+                                </ComboBox.ItemTemplate>
+                            </ComboBox>
+
+                            <!-- Output Destination -->
+                            <TextBlock Text="Output Destination" FontSize="11" Foreground="#8B86A8" Margin="0,0,0,4"/>
+                            <ComboBox x:Name="Outputs" SelectionChanged="Output_Changed" Height="34" Margin="0,0,0,12" Foreground="#000000" TextElement.Foreground="#000000">
+                                <ComboBox.ItemTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding Name}" Foreground="#000000"/>
+                                    </DataTemplate>
+                                </ComboBox.ItemTemplate>
+                            </ComboBox>
+
+                            <!-- Connection Control Buttons -->
+                            <Grid Margin="0,2,0,0">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="10"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <Button x:Name="StartButton" Content="Preparar Conexão" Click="Start_Click"
+                                        Background="#532EE5" Foreground="#FFFFFF" FontWeight="Bold" FontSize="13" Height="40" Padding="0">
+                                    <Button.Resources>
+                                        <Style TargetType="Border"><Setter Property="CornerRadius" Value="8"/></Style>
+                                    </Button.Resources>
+                                </Button>
+                                <Button x:Name="RefreshButton" Grid.Column="2" Content="Atualizar" Click="Refresh_Click"
+                                        Background="#1C1833" BorderBrush="#2D2750" BorderThickness="1" Foreground="#C8C4E0" Height="40" Padding="14,0">
+                                    <Button.Resources>
+                                        <Style TargetType="Border"><Setter Property="CornerRadius" Value="8"/></Style>
+                                    </Button.Resources>
+                                </Button>
+                            </Grid>
+                        </StackPanel>
+                    </Grid>
+                </Border>
+            </Grid>
+
+            <!-- ========================================== -->
+            <!-- 05. BOTTOM STATUS BAR                      -->
+            <!-- ========================================== -->
+            <Grid Grid.Row="4" Margin="26,0,26,0">
+                <TextBlock x:Name="Status" Text="Status: CONNECTED (Ultra Low Latency)" FontSize="11" Foreground="#7D789D" VerticalAlignment="Center"/>
+                <TextBlock x:Name="Stats" Text="PCM 48 kHz / 16-bit · mono · TLS" FontSize="11" Foreground="#635E82" HorizontalAlignment="Right" VerticalAlignment="Center"/>
+                <TextBlock x:Name="RouteHint" Visibility="Collapsed"/>
+            </Grid>
+
+            <!-- ========================================== -->
+            <!-- 06. SLEEK DARK HUD HELP / ABOUT MODAL      -->
+            <!-- ========================================== -->
+            <Border x:Name="HelpModal" Grid.RowSpan="5" Background="#E607060D" Visibility="Collapsed">
+                <Border Width="480" VerticalAlignment="Center" HorizontalAlignment="Center" Background="#110F20" BorderBrush="#3D297A" BorderThickness="1.5" CornerRadius="16" Padding="28">
+                    <Border.Effect>
+                        <DropShadowEffect BlurRadius="40" Color="#5B2DEE" ShadowDepth="0" Opacity="0.35"/>
+                    </Border.Effect>
+                    <StackPanel>
+                        <!-- Modal Title -->
+                        <Grid Margin="0,0,0,16">
+                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                <Border Width="26" Height="26" CornerRadius="13" Background="#5B2DEE" Margin="0,0,10,0">
+                                    <TextBlock Text="ⓘ" Foreground="#FFFFFF" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="13"/>
+                                </Border>
+                                <TextBlock Text="Sobre o Lynow Mic" FontSize="18" FontWeight="Bold" Foreground="#FFFFFF" VerticalAlignment="Center"/>
+                            </StackPanel>
+                            <Button Click="CloseHelpModal_Click" HorizontalAlignment="Right" Width="28" Height="28" Background="Transparent" Foreground="#8B86A8" Padding="0">
+                                <TextBlock Text="✕" FontSize="13" FontWeight="Bold"/>
+                            </Button>
+                        </Grid>
+
+                        <TextBlock Text="Guia de Conexão Rápida" FontSize="12" FontWeight="Bold" Foreground="#9D7AFF" Margin="0,0,0,12"/>
+
+                        <!-- Step 1 -->
+                        <Border Background="#17142B" CornerRadius="8" Padding="12,10" Margin="0,0,0,8">
+                            <TextBlock Text="1. Conecte o PC e o celular na MESMA rede Wi-Fi." FontSize="12" Foreground="#DDD9F5"/>
+                        </Border>
+                        <!-- Step 2 -->
+                        <Border Background="#17142B" CornerRadius="8" Padding="12,10" Margin="0,0,0,8">
+                            <TextBlock Text="2. Selecione sua rede local e a saída de áudio 'CABLE Input'." FontSize="12" Foreground="#DDD9F5"/>
+                        </Border>
+                        <!-- Step 3 -->
+                        <Border Background="#17142B" CornerRadius="8" Padding="12,10" Margin="0,0,0,8">
+                            <TextBlock Text="3. Clique em 'Preparar Conexão' para gerar o QR Code." FontSize="12" Foreground="#DDD9F5"/>
+                        </Border>
+                        <!-- Step 4 -->
+                        <Border Background="#17142B" CornerRadius="8" Padding="12,10" Margin="0,0,0,8">
+                            <TextBlock Text="4. Abra o Lynow Mic no celular e escaneie o código na tela." FontSize="12" Foreground="#DDD9F5"/>
+                        </Border>
+                        <!-- Step 5 -->
+                        <Border Background="#17142B" CornerRadius="8" Padding="12,10" Margin="0,0,0,16">
+                            <TextBlock Text="5. No Discord/OBS/Jogos, escolha 'CABLE Output' como microfone." FontSize="12" Foreground="#DDD9F5"/>
+                        </Border>
+
+                        <TextBlock Text="Código aberto · Baixa latência com criptografia TLS" FontSize="11" Foreground="#7D789D" HorizontalAlignment="Center" Margin="0,0,0,18"/>
+
+                        <!-- Close Modal Button -->
+                        <Button Click="CloseHelpModal_Click" Content="Entendido" Height="38" Background="#5B2DEE" Foreground="#FFFFFF" FontWeight="Bold" FontSize="13" Padding="0">
+                            <Button.Resources>
+                                <Style TargetType="Border"><Setter Property="CornerRadius" Value="8"/></Style>
+                            </Button.Resources>
+                        </Button>
+                    </StackPanel>
+                </Border>
+            </Border>
+        </Grid>
+    </Border>
+</Window>

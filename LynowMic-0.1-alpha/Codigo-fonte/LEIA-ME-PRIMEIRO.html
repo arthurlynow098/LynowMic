@@ -1,0 +1,2086 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="dark">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="icon" href="favicon.ico" sizes="any" />
+  <title>Lynow Mic</title>
+  <meta name="description"
+    content="Transforme seu celular Android em um microfone profissional sem fio para PC com baixa latência, áudio PCM de alta fidelidade e pareamento instantâneo por QR Code." />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap"
+    rel="stylesheet">
+
+  <style>
+    :root {
+      --bg: #0b0b10;
+      --bg-sunken: #07070a;
+      --bg-card: #12111b;
+      --bg-card-hover: #181624;
+      --line: rgba(255, 255, 255, 0.08);
+      --line-strong: rgba(255, 255, 255, 0.16);
+      --ink: #f4f3f7;
+      --ink-strong: #ffffff;
+      --muted: #9591a7;
+      --faint: #625e77;
+      --app: #5b2dee;
+      --app-light: #7b4dff;
+      --app-glow: rgba(123, 77, 255, 0.25);
+      --app-ink: #9d7aff;
+      --accent-pill: #5b2dee;
+      --invert-bg: #f4f3f7;
+      --invert-fg: #0b0b10;
+      --radius-sm: 4px;
+      --radius-md: 10px;
+      --radius-lg: 16px;
+      --radius-xl: 24px;
+      --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      --font-display: 'Plus Jakarta Sans', var(--font-sans);
+      --font-mono: 'Geist Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    }
+
+    [data-theme="light"] {
+      --bg: #f5f4f8;
+      --bg-sunken: #eae8f0;
+      --bg-card: #ffffff;
+      --bg-card-hover: #f9f8fc;
+      --line: rgba(24, 18, 48, 0.08);
+      --line-strong: rgba(24, 18, 48, 0.16);
+      --ink: #181622;
+      --ink-strong: #0d0c15;
+      --muted: #676378;
+      --faint: #9894a8;
+      --app: #5022e0;
+      --app-light: #6432f5;
+      --app-glow: rgba(91, 45, 238, 0.16);
+      --app-ink: #5022e0;
+      --accent-pill: #5022e0;
+      --invert-bg: #12101b;
+      --invert-fg: #ffffff;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      scroll-behavior: smooth;
+      background-color: var(--bg);
+      color: var(--ink);
+      font-family: var(--font-sans);
+      -webkit-font-smoothing: antialiased;
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--ink);
+      line-height: 1.6;
+      overflow-x: hidden;
+      min-height: 100vh;
+    }
+
+    #scroll-progress {
+      position: fixed;
+      top: 47px;
+      left: 0;
+      z-index: 140;
+      width: 100%;
+      height: 2px;
+      pointer-events: none;
+      transform: scaleX(0);
+      transform-origin: left center;
+      background: linear-gradient(90deg, var(--app), var(--app-light), #b69cff);
+      box-shadow: 0 0 14px var(--app-glow);
+      will-change: transform;
+    }
+
+    section[id],
+    .eyebrow-bar[id] {
+      scroll-margin-top: 64px;
+    }
+
+    /* Precision Technical Grid Lines & Ticks */
+    .border-line {
+      border-color: var(--line) !important;
+    }
+
+    .border-line-strong {
+      border-color: var(--line-strong) !important;
+    }
+
+    .tick {
+      position: absolute;
+      width: 9px;
+      height: 9px;
+      pointer-events: none;
+      z-index: 10;
+    }
+
+    .tick::before,
+    .tick::after {
+      content: '';
+      position: absolute;
+      background: var(--faint);
+    }
+
+    .tick::before {
+      top: 4px;
+      left: 0;
+      width: 9px;
+      height: 1px;
+    }
+
+    .tick::after {
+      top: 0;
+      left: 4px;
+      width: 1px;
+      height: 9px;
+    }
+
+    .tick-top-left {
+      top: -5px;
+      left: -5px;
+    }
+
+    .tick-top-right {
+      top: -5px;
+      right: -5px;
+    }
+
+    .tick-bottom-left {
+      bottom: -5px;
+      left: -5px;
+    }
+
+    .tick-bottom-right {
+      bottom: -5px;
+      right: -5px;
+    }
+
+    /* Top Sticky Navigation Bar */
+    #site-nav {
+      position: sticky;
+      top: 0;
+      left: 0;
+      z-index: 100;
+      width: 100%;
+      height: 48px;
+      border-bottom: 1px solid var(--line);
+      background: rgba(11, 11, 16, 0.88);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+    }
+
+    [data-theme="light"] #site-nav {
+      background: rgba(245, 244, 248, 0.90);
+    }
+
+    .nav-container {
+      display: flex;
+      height: 100%;
+      width: 100%;
+      align-items: stretch;
+      justify-content: space-between;
+    }
+
+    .nav-left,
+    .nav-right {
+      display: flex;
+      align-items: stretch;
+    }
+
+    .nav-brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 0 20px;
+      border-right: 1px solid var(--line);
+      text-decoration: none;
+      color: var(--ink-strong);
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: 15px;
+      letter-spacing: -0.02em;
+    }
+
+    .nav-brand-img {
+      width: 24px;
+      height: 24px;
+      border-radius: 6px;
+      object-fit: cover;
+      box-shadow: 0 2px 8px var(--app-glow);
+    }
+
+    .nav-links {
+      display: flex;
+      list-style: none;
+      align-items: stretch;
+    }
+
+    @media (max-width: 900px) {
+      .nav-links {
+        display: none;
+      }
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: stretch;
+    }
+
+    .nav-link {
+      display: flex;
+      align-items: center;
+      padding: 0 14px;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+      text-decoration: none;
+      transition: all 0.15s ease;
+    }
+
+    .nav-link:hover {
+      color: var(--ink-strong);
+    }
+
+    .nav-link span.pill {
+      position: relative;
+      padding: 2px 6px;
+      border-radius: 2px;
+      transition: background 0.15s;
+    }
+
+    .nav-link:hover span.pill {
+      background: var(--invert-bg);
+      color: var(--invert-fg);
+    }
+
+    .nav-link.active span.pill {
+      background: var(--app);
+      color: #ffffff;
+      font-weight: 700;
+    }
+
+    .nav-link.active span.pill::after {
+      content: '';
+      position: absolute;
+      left: 8px;
+      right: 8px;
+      bottom: -7px;
+      height: 1px;
+      background: currentColor;
+      animation: nav-pulse 1.8s ease-in-out infinite;
+    }
+
+    .nav-action-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      height: 100%;
+      padding: 0 20px;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      border-left: 1px solid var(--line);
+      background: var(--invert-bg);
+      color: var(--invert-fg);
+      text-decoration: none;
+      cursor: pointer;
+      transition: opacity 0.15s;
+    }
+
+    .nav-action-btn:hover {
+      opacity: 0.85;
+    }
+
+    .nav-icon-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 48px;
+      height: 100%;
+      border-left: 1px solid var(--line);
+      background: transparent;
+      border-top: none;
+      border-bottom: none;
+      border-right: none;
+      color: var(--muted);
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .nav-icon-btn:hover {
+      background: var(--invert-bg);
+      color: var(--invert-fg);
+    }
+
+    /* Sticky Eyebrow Section Bar */
+    .eyebrow-bar {
+      position: sticky;
+      top: 48px;
+      z-index: 40;
+      border-bottom: 1px solid var(--line);
+      background: rgba(11, 11, 16, 0.72);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+    }
+
+    [data-theme="light"] .eyebrow-bar {
+      background: rgba(245, 244, 248, 0.85);
+    }
+
+    .eyebrow-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 10px 24px;
+    }
+
+    .hud-label {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--muted);
+    }
+
+    .hud-label .faint {
+      color: var(--faint);
+    }
+
+    .hud-label .divider {
+      margin: 0 8px;
+      color: var(--faint);
+    }
+
+    /* Main Container with Framing Borders */
+    .editorial-wrapper {
+      position: relative;
+      max-width: 1280px;
+      margin: 0 auto;
+      border-left: 1px solid var(--line);
+      border-right: 1px solid var(--line);
+    }
+
+    .editorial-wrapper::before {
+      content: '';
+      position: fixed;
+      z-index: -1;
+      width: 42vw;
+      height: 42vw;
+      right: -16vw;
+      top: 22vh;
+      border-radius: 50%;
+      background: radial-gradient(circle, var(--app-glow), transparent 68%);
+      transform: translate3d(0, var(--ambient-shift, 0px), 0);
+      pointer-events: none;
+      will-change: transform;
+    }
+
+    /* Hero Section */
+    .hero-section {
+      position: relative;
+      padding: 60px 24px 48px;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .app-icon-badge {
+      display: inline-flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 28px;
+    }
+
+    .app-icon-img {
+      width: 110px;
+      height: 110px;
+      border-radius: 28px;
+      object-fit: cover;
+      box-shadow: 0 16px 36px rgba(91, 45, 238, 0.35), 0 0 0 1px rgba(255, 255, 255, 0.15);
+      transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      transform: translate3d(0, var(--hero-parallax, 0px), 0);
+    }
+
+    .app-icon-img:hover {
+      transform: scale(1.04) rotate(-1deg);
+    }
+
+    .app-title-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .app-number-pill {
+      background: var(--app);
+      color: #ffffff;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 700;
+      padding: 3px 8px;
+      border-radius: 4px;
+      letter-spacing: 0.05em;
+    }
+
+    .app-name-title {
+      font-family: var(--font-display);
+      font-size: 26px;
+      font-weight: 700;
+      letter-spacing: -0.03em;
+      color: var(--ink-strong);
+    }
+
+    .app-name-title span {
+      color: var(--app-ink);
+    }
+
+    .hero-headline {
+      max-width: 900px;
+      font-family: var(--font-display);
+      font-size: clamp(34px, 5.8vw, 68px);
+      font-weight: 700;
+      line-height: 1.05;
+      letter-spacing: -0.035em;
+      color: var(--ink-strong);
+      margin: 0 auto 20px;
+    }
+
+    .hero-headline span.accent {
+      color: var(--app-ink);
+      position: relative;
+      display: inline-block;
+    }
+
+    .hero-headline span.accent::after {
+      content: '';
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: -5px;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--app-light), transparent);
+      transform-origin: left;
+      animation: accent-line 2.8s ease-in-out infinite;
+    }
+
+    .hero-subtitle {
+      max-width: 680px;
+      margin: 0 auto 36px;
+      font-size: clamp(16px, 1.8vw, 19px);
+      line-height: 1.65;
+      color: var(--muted);
+      font-weight: 400;
+    }
+
+    /* Hero CTA Button Group */
+    .cta-group {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .btn-cta {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      height: 48px;
+      padding: 0 24px;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      text-decoration: none;
+      cursor: pointer;
+      transition: all 0.18s ease;
+      white-space: nowrap;
+    }
+
+    .btn-primary {
+      background: var(--invert-bg);
+      color: var(--invert-fg);
+      border: 1px solid var(--invert-bg);
+    }
+
+    .btn-primary:hover {
+      opacity: 0.88;
+      transform: translateY(-1px);
+    }
+
+    .btn-secondary {
+      background: var(--bg-card);
+      color: var(--ink-strong);
+      border: 1px solid var(--line-strong);
+    }
+
+    .btn-secondary:hover {
+      border-color: var(--app-light);
+      color: var(--app-ink);
+      transform: translateY(-1px);
+    }
+
+    .os-badge-list {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--faint);
+      margin-bottom: 24px;
+      letter-spacing: 0.05em;
+    }
+
+    /* Share Bar matching PhotoCraft */
+    .share-bar {
+      display: inline-flex;
+      flex-wrap: wrap;
+      border: 1px solid var(--line);
+      background: var(--line);
+      gap: 1px;
+      margin-bottom: 40px;
+    }
+
+    .share-label {
+      display: flex;
+      align-items: center;
+      height: 34px;
+      padding: 0 14px;
+      background: var(--bg);
+      font-family: var(--font-mono);
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--faint);
+    }
+
+    .share-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      height: 34px;
+      padding: 0 14px;
+      background: var(--bg);
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+      text-decoration: none;
+      border: none;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .share-item:hover {
+      background: var(--invert-bg);
+      color: var(--invert-fg);
+    }
+
+    /* Large Screenshot Hero Frame */
+    .screenshot-figure {
+      position: relative;
+      width: min(calc(100% - 40px), 1080px);
+      margin: 0 auto 72px;
+      border: 1px solid var(--line-strong);
+      border-radius: 16px;
+      background: var(--bg-sunken);
+      overflow: hidden;
+      box-shadow: 0 28px 80px rgba(0, 0, 0, 0.32), 0 0 50px var(--app-glow);
+      transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.5s ease;
+    }
+
+    .screenshot-figure:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 34px 90px rgba(0, 0, 0, 0.38), 0 0 70px var(--app-glow);
+    }
+
+    .screenshot-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 24px;
+      border-bottom: 1px solid var(--line);
+      background: rgba(11, 11, 16, 0.4);
+    }
+
+    .screenshot-viewport {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 1080 / 780;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #09090e;
+    }
+
+    .screenshot-img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      object-position: center;
+      display: block;
+    }
+
+    .motion-ready .reveal-on-scroll {
+      opacity: 0;
+      transform: translateY(28px);
+      transition: opacity 0.7s ease, transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+      transition-delay: var(--reveal-delay, 0ms);
+    }
+
+    .motion-ready .reveal-on-scroll.is-visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .app-icon-badge,
+    .hero-headline,
+    .hero-subtitle,
+    .cta-group,
+    .os-badge-list,
+    .share-bar {
+      animation: hero-arrive 0.75s both cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .hero-headline { animation-delay: 80ms; }
+    .hero-subtitle { animation-delay: 150ms; }
+    .cta-group { animation-delay: 220ms; }
+    .os-badge-list { animation-delay: 290ms; }
+    .share-bar { animation-delay: 340ms; }
+
+    @keyframes hero-arrive {
+      from { opacity: 0; transform: translateY(18px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes accent-line {
+      0%, 100% { transform: scaleX(0.25); opacity: 0.35; }
+      50% { transform: scaleX(1); opacity: 1; }
+    }
+
+    @keyframes nav-pulse {
+      0%, 100% { opacity: 0.35; transform: scaleX(0.6); }
+      50% { opacity: 1; transform: scaleX(1); }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        scroll-behavior: auto !important;
+        transition-duration: 0.01ms !important;
+      }
+
+      .motion-ready .reveal-on-scroll {
+        opacity: 1;
+        transform: none;
+      }
+    }
+
+    /* Highlights 6-Grid Section */
+    .highlights-section {
+      position: relative;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .section-intro {
+      padding: 56px 24px 36px;
+      text-align: center;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    .section-title {
+      font-family: var(--font-display);
+      font-size: clamp(28px, 4vw, 44px);
+      font-weight: 700;
+      letter-spacing: -0.03em;
+      line-height: 1.15;
+      color: var(--ink-strong);
+      margin-bottom: 14px;
+    }
+
+    .section-subtitle {
+      font-size: 16px;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      border-top: 1px solid var(--line);
+      background: var(--line);
+      gap: 1px;
+    }
+
+    @media (max-width: 900px) {
+      .features-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .feature-card {
+      position: relative;
+      background: var(--bg);
+      padding: 36px 30px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      min-height: 220px;
+      transition: background 0.2s ease;
+    }
+
+    .feature-card:hover {
+      background: var(--bg-card);
+    }
+
+    .feature-card-top {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      margin-bottom: 20px;
+    }
+
+    .feature-title {
+      font-family: var(--font-display);
+      font-size: 19px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      color: var(--ink-strong);
+      line-height: 1.25;
+    }
+
+    .feature-num {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--faint);
+    }
+
+    .feature-desc {
+      font-size: 14px;
+      color: var(--muted);
+      line-height: 1.65;
+    }
+
+    /* Ecosystem Gallery Section (Windows, Android, Web) */
+    .ecosystem-section {
+      position: relative;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .ecosystem-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      border-top: 1px solid var(--line);
+      background: var(--line);
+      gap: 1px;
+    }
+
+    @media (max-width: 960px) {
+      .ecosystem-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .eco-card {
+      position: relative;
+      background: var(--bg);
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+
+    .eco-card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .eco-badge {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 700;
+      padding: 3px 8px;
+      border-radius: 4px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .eco-badge.win {
+      background: #0078d4;
+      color: #fff;
+    }
+
+    .eco-badge.droid {
+      background: #3ddc84;
+      color: #0b1f13;
+    }
+
+    .eco-badge.web {
+      background: var(--app);
+      color: #fff;
+    }
+
+    .eco-title {
+      font-family: var(--font-display);
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--ink-strong);
+    }
+
+    .eco-image-frame {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 4 / 3;
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      border: 1px solid var(--line);
+      background: #08080c;
+    }
+
+    .eco-image-frame img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      transition: transform 0.4s ease;
+    }
+
+    .eco-card:hover .eco-image-frame img {
+      transform: scale(1.03);
+    }
+
+    .eco-caption {
+      font-size: 13px;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    /* Manual Steps (Comece Aqui) Section */
+    .manual-section {
+      position: relative;
+      border-bottom: 1px solid var(--line);
+      padding: 56px 24px 60px;
+    }
+
+    .steps-container {
+      max-width: 960px;
+      margin: 40px auto 0;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .step-box {
+      position: relative;
+      display: grid;
+      grid-template-columns: 56px 1fr;
+      gap: 24px;
+      padding: 28px;
+      background: var(--bg-card);
+      border: 1px solid var(--line);
+      border-radius: var(--radius-lg);
+      transition: border-color 0.2s ease;
+    }
+
+    .step-box:hover {
+      border-color: var(--line-strong);
+    }
+
+    .step-counter {
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      background: var(--app);
+      color: #ffffff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--font-mono);
+      font-size: 18px;
+      font-weight: 700;
+      box-shadow: 0 4px 14px var(--app-glow);
+    }
+
+    .step-content h3 {
+      font-family: var(--font-display);
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--ink-strong);
+      margin-bottom: 8px;
+      letter-spacing: -0.02em;
+    }
+
+    .step-content p {
+      font-size: 15px;
+      color: var(--muted);
+      line-height: 1.6;
+      margin-bottom: 12px;
+    }
+
+    .step-content code {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      background: rgba(123, 77, 255, 0.12);
+      color: var(--app-ink);
+      padding: 2px 6px;
+      border-radius: 4px;
+      border: 1px solid rgba(123, 77, 255, 0.2);
+    }
+
+    /* Technical Spec Table */
+    .spec-table-container {
+      max-width: 960px;
+      margin: 40px auto 0;
+      border: 1px solid var(--line);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      background: var(--bg-card);
+    }
+
+    .spec-table-header {
+      padding: 16px 24px;
+      border-bottom: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.02);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .spec-table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+    }
+
+    .spec-table th,
+    .spec-table td {
+      padding: 16px 24px;
+      border-bottom: 1px solid var(--line);
+      font-size: 14px;
+    }
+
+    .spec-table tr:last-child td {
+      border-bottom: none;
+    }
+
+    .spec-table th {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--faint);
+      background: rgba(255, 255, 255, 0.01);
+    }
+
+    .spec-table td.strong {
+      font-weight: 600;
+      color: var(--ink-strong);
+    }
+
+    .spec-table td.badge-cell span {
+      display: inline-block;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      padding: 3px 8px;
+      border-radius: 4px;
+      background: rgba(123, 77, 255, 0.15);
+      color: var(--app-ink);
+      font-weight: 700;
+    }
+
+    /* Downloads Grid Section */
+    .downloads-section {
+      position: relative;
+      border-bottom: 1px solid var(--line);
+      padding: 56px 24px 60px;
+    }
+
+    .downloads-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+      max-width: 1100px;
+      margin: 40px auto 0;
+    }
+
+    @media (max-width: 900px) {
+      .downloads-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .download-card {
+      background: var(--bg-card);
+      border: 1px solid var(--line);
+      border-radius: var(--radius-lg);
+      padding: 32px 24px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      transition: all 0.2s ease;
+    }
+
+    .download-card.highlight {
+      border-color: var(--app-light);
+      box-shadow: 0 10px 30px var(--app-glow);
+    }
+
+    .download-card:hover {
+      transform: translateY(-2px);
+      border-color: var(--line-strong);
+    }
+
+    .download-platform {
+      font-family: var(--font-display);
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--ink-strong);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 8px;
+    }
+
+    .download-meta {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--muted);
+      margin-bottom: 24px;
+      line-height: 1.6;
+    }
+
+    .download-specs-list {
+      list-style: none;
+      margin-bottom: 30px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .download-specs-list li {
+      font-size: 13px;
+      color: var(--muted);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .download-specs-list li svg {
+      width: 14px;
+      height: 14px;
+      color: var(--app-light);
+      flex-shrink: 0;
+    }
+
+    /* Troubleshooting FAQ Accordions */
+    .troubleshoot-section {
+      position: relative;
+      border-bottom: 1px solid var(--line);
+      padding: 56px 24px 60px;
+    }
+
+    .faq-grid {
+      max-width: 960px;
+      margin: 40px auto 0;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    @media (max-width: 768px) {
+      .faq-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .faq-item {
+      background: var(--bg-card);
+      border: 1px solid var(--line);
+      border-radius: var(--radius-md);
+      padding: 24px;
+    }
+
+    .faq-q {
+      font-family: var(--font-display);
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--ink-strong);
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .faq-q svg {
+      color: var(--app-light);
+      width: 18px;
+      height: 18px;
+      flex-shrink: 0;
+    }
+
+    .faq-a {
+      font-size: 14px;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+
+    /* Footer */
+    footer {
+      padding: 48px 24px;
+      border-top: 1px solid var(--line);
+      background: var(--bg-sunken);
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .footer-inner {
+      max-width: 1280px;
+      margin: 0 auto;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+    }
+
+    .footer-brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-family: var(--font-display);
+      font-weight: 700;
+      color: var(--ink-strong);
+      font-size: 16px;
+    }
+
+    .footer-brand img {
+      width: 28px;
+      height: 28px;
+      border-radius: 8px;
+    }
+
+    .footer-links {
+      display: flex;
+      gap: 20px;
+      list-style: none;
+    }
+
+    .footer-links a {
+      color: var(--muted);
+      text-decoration: none;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      transition: color 0.15s;
+    }
+
+    .footer-links a:hover {
+      color: var(--ink-strong);
+    }
+
+    /* Notification Toast */
+    #toast {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      z-index: 1000;
+      background: var(--invert-bg);
+      color: var(--invert-fg);
+      font-family: var(--font-mono);
+      font-size: 12px;
+      font-weight: 600;
+      padding: 12px 20px;
+      border-radius: var(--radius-sm);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      opacity: 0;
+      pointer-events: none;
+      transform: translateY(10px);
+      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    #toast.show {
+      opacity: 1;
+      pointer-events: auto;
+      transform: translateY(0);
+    }
+  </style>
+</head>
+
+<body>
+  <div id="scroll-progress" aria-hidden="true"></div>
+  <!-- Navigation Bar -->
+  <nav id="site-nav">
+    <div class="nav-container">
+      <div class="nav-left">
+        <a href="#hero" class="nav-brand">
+          <img
+            src="../images/lynow-logo.jpg"
+            alt="Logo Lynow Mic" class="nav-brand-img" />
+          <span>Lynow<span style="color: var(--app-ink);">Mic</span></span>
+        </a>
+        <ul class="nav-links">
+          <li class="nav-item"><a href="#hero" class="nav-link"><span class="pill">Início</span></a></li>
+          <li class="nav-item"><a href="#destaques" class="nav-link"><span class="pill">Destaques</span></a></li>
+          <li class="nav-item"><a href="#ecossistema" class="nav-link"><span class="pill">Ecossistema</span></a></li>
+          <li class="nav-item"><a href="#manual" class="nav-link"><span class="pill">Como Conectar</span></a></li>
+          <li class="nav-item"><a href="#downloads" class="nav-link active"><span class="pill">Downloads</span></a></li>
+          <li class="nav-item"><a href="#faq" class="nav-link"><span class="pill">Suporte & FAQ</span></a></li>
+        </ul>
+      </div>
+
+      <div class="nav-right">
+        <!-- Dark / Light Theme Toggle -->
+        <button id="theme-btn" class="nav-icon-btn" title="Alternar tema claro/escuro" aria-label="Toggle theme">
+          <svg id="moon-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+          </svg>
+          <svg id="sun-icon" style="display:none;" width="16" height="16" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="5"></circle>
+            <line x1="12" y1="1" x2="12" y2="3"></line>
+            <line x1="12" y1="21" x2="12" y2="23"></line>
+            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+            <line x1="1" y1="12" x2="3" y2="12"></line>
+            <line x1="21" y1="12" x2="23" y2="12"></line>
+            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+          </svg>
+        </button>
+        <a href="#downloads" class="nav-action-btn">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+            stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+            <polyline points="7 10 12 15 17 10"></polyline>
+            <line x1="12" y1="15" x2="12" y2="3"></line>
+          </svg>
+          Baixar v0.1 Alpha
+        </a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Sticky Eyebrow 01 -->
+  <div class="eyebrow-bar">
+    <div class="eyebrow-inner">
+      <div class="hud-label">
+        <span class="faint">01</span>
+        <span class="divider">/</span>
+        <span>Lynow Mic</span>
+      </div>
+      <div class="hud-label faint">
+        Microfone Sem Fio · Windows & Android · Early Alpha
+      </div>
+    </div>
+  </div>
+
+  <!-- Editorial Main Container -->
+  <div class="editorial-wrapper">
+    <span class="tick tick-top-left"></span>
+    <span class="tick tick-top-right"></span>
+
+    <!-- Hero Section -->
+    <section id="hero" class="hero-section">
+      <!-- App Icon Badge -->
+      <div class="app-icon-badge">
+        <img
+          src="../images/lynow-logo.jpg"
+          alt="Logo Lynow Mic" class="app-icon-img" />
+        <div class="app-title-tag">
+          <span class="app-number-pill">01</span>
+          <span class="app-name-title">Lynow<span>Mic</span></span>
+        </div>
+      </div>
+
+      <!-- Main Headline -->
+      <h1 class="hero-headline">
+        Seu celular já tem um bom microfone. <span class="accent">Agora o PC pode usar também.</span>
+      </h1>
+
+      <p class="hero-subtitle">
+        O Lynow Mic leva sua voz do Android para o Windows pela rede de casa. Você abre os dois aplicativos,
+        escaneia um QR Code e escolhe onde quer usar o áudio — numa chamada, gravação ou partida.
+      </p>
+
+      <!-- CTA Buttons -->
+      <div class="cta-group">
+        <a href="https://github.com/arthurlynow098/LynowMic/releases/download/v0.1.0-alpha/LynowMic.exe" class="btn-cta btn-primary">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+            stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 17V3"></path>
+            <path d="m6 11 6 6 6-6"></path>
+            <path d="M19 21H5"></path>
+          </svg>
+          Abrir Lynow Mic Windows
+        </a>
+
+        <a href="https://github.com/arthurlynow098/LynowMic/releases/download/v0.1.0-alpha/LynowMic-android-alpha.apk" class="btn-cta btn-secondary">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect>
+            <line x1="12" y1="18" x2="12.01" y2="18"></line>
+          </svg>
+          Instalar APK Android
+        </a>
+
+        <a href="https://github.com/arthurlynow098/LynowMic" target="_blank" rel="noopener noreferrer" class="btn-cta btn-secondary">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="16 18 22 12 16 6"></polyline>
+            <polyline points="8 6 2 12 8 18"></polyline>
+          </svg>
+          Código-Fonte
+        </a>
+      </div>
+
+      <div class="os-badge-list">
+        Windows 10/11 x64 · Android 8.0+ · Gratuito e com código aberto
+      </div>
+
+      <!-- Share Bar -->
+      <div class="share-bar">
+        <span class="share-label">Compartilhar</span>
+        <button type="button" class="share-item" onclick="copyCurrentLink()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <rect width="14" height="14" x="8" y="8" rx="2" ry="2"></rect>
+            <path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"></path>
+          </svg>
+          Copiar Link
+        </button>
+        <a href="https://wa.me/?text=Conhe%C3%A7a%20o%20Lynow%20Mic%20-%20transforme%20seu%20celular%20em%20microfone%20sem%20fios%20para%20PC!"
+          target="_blank" class="share-item">WhatsApp</a>
+        <a href="https://t.me/share/url?url=https://github.com&text=Lynow%20Mic%20-%20Microfone%20sem%20fio%20de%20baixa%20lat%C3%AAncia"
+          target="_blank" class="share-item">Telegram</a>
+        <a href="https://x.com/intent/post?text=Lynow%20Mic%3A%20Seu%20celular%2C%20seu%20novo%20microfone%20para%20PC."
+          target="_blank" class="share-item">X</a>
+      </div>
+    </section>
+
+    <!-- Large Hero Mockup Showcase -->
+    <figure class="screenshot-figure">
+      <div class="screenshot-header">
+        <span class="hud-label faint">Interface Nativa Lynow Mic (Windows) & Analisador de Frequência</span>
+        <span class="hud-label faint">Preview Oficial v0.1</span>
+      </div>
+      <div class="screenshot-viewport">
+        <img
+          src="../images/hero_screenshot.jpg"
+          alt="Lynow Mic Windows Interface" class="screenshot-img"
+          onerror="this.onerror=null; this.src='../../images/hero_screenshot.jpg';" />
+        <span class="tick tick-top-left" style="opacity: 0.5;"></span>
+        <span class="tick tick-top-right" style="opacity: 0.5;"></span>
+        <span class="tick tick-bottom-left" style="opacity: 0.5;"></span>
+        <span class="tick tick-bottom-right" style="opacity: 0.5;"></span>
+      </div>
+    </figure>
+
+    <!-- Sticky Eyebrow 02 -->
+    <div class="eyebrow-bar" id="destaques">
+      <div class="eyebrow-inner">
+        <div class="hud-label">
+          <span class="faint">02</span>
+          <span class="divider">/</span>
+          <span>Destaques</span>
+        </div>
+        <div class="hud-label faint">
+          Arquitetura & Engenharia
+        </div>
+      </div>
+    </div>
+
+    <!-- Highlights Section -->
+    <section class="highlights-section">
+      <div class="section-intro">
+        <h2 class="section-title">
+          Feito para conectar rápido e <span style="color: var(--app-ink);">deixar você no controle</span>.
+        </h2>
+        <p class="section-subtitle">
+          Não tem cadastro, anúncio ou assinatura. A conversa acontece entre o celular e o computador na sua rede local,
+          com uma conexão TLS validada pelo código de pareamento.
+        </p>
+      </div>
+
+      <div class="features-grid">
+        <div class="feature-card">
+          <div class="feature-card-top">
+            <h3 class="feature-title">Um QR Code e pronto</h3>
+            <span class="feature-num">01</span>
+          </div>
+          <p class="feature-desc">
+            Prepare a conexão no Windows e leia o código com o celular. Ele já leva o endereço e as chaves necessárias,
+            sem pedir que você digite IP ou porta.
+          </p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-card-top">
+            <h3 class="feature-title">Sua voz sem compressão</h3>
+            <span class="feature-num">02</span>
+          </div>
+          <p class="feature-desc">
+            O áudio segue em PCM mono, 48 kHz e 16 bits. É um formato direto, sem codec com perdas no caminho entre o
+            telefone e o computador.
+          </p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-card-top">
+            <h3 class="feature-title">Resposta pensada para conversa</h3>
+            <span class="feature-num">03</span>
+          </div>
+          <p class="feature-desc">
+            Os pacotes percorrem apenas a rede local. Na prática, isso evita a volta por um servidor externo e mantém a
+            resposta adequada para chamadas, jogos e gravações.
+          </p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-card-top">
+            <h3 class="feature-title">Use onde você já conversa</h3>
+            <span class="feature-num">04</span>
+          </div>
+          <p class="feature-desc">
+            Com o VB-CABLE, a voz recebida pode entrar no Discord, OBS, navegador ou jogo como uma fonte de áudio do
+            Windows.
+          </p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-card-top">
+            <h3 class="feature-title">Dá para ver quando está alto demais</h3>
+            <span class="feature-num">05</span>
+          </div>
+          <p class="feature-desc">
+            O medidor reage enquanto você fala e ajuda a perceber volume baixo ou saturação antes de começar uma chamada
+            ou gravação.
+          </p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-card-top">
+            <h3 class="feature-title">Sem conta e sem telemetria</h3>
+            <span class="feature-num">06</span>
+          </div>
+          <p class="feature-desc">
+            O aplicativo não exige login e não envia métricas de uso. O código do Windows, do Android e do protocolo vai
+            junto no pacote para quem quiser conferir.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Sticky Eyebrow 03 -->
+    <div class="eyebrow-bar" id="ecossistema">
+      <div class="eyebrow-inner">
+        <div class="hud-label">
+          <span class="faint">03</span>
+          <span class="divider">/</span>
+          <span>Ecossistema Lynow</span>
+        </div>
+        <div class="hud-label faint">
+          Windows · Android · Web Monitor
+        </div>
+      </div>
+    </div>
+
+    <!-- Ecosystem Gallery Section -->
+    <section class="ecosystem-section">
+      <div class="section-intro">
+        <h2 class="section-title">
+          Duas pontas, <span style="color: var(--app-ink);">uma conexão simples</span>.
+        </h2>
+        <p class="section-subtitle">
+          O computador recebe e encaminha o áudio. O celular captura sua voz. As duas telas seguem a mesma identidade
+          para você saber onde está e o que está acontecendo.
+        </p>
+      </div>
+
+      <div class="ecosystem-grid">
+        <!-- Windows Card -->
+        <div class="eco-card">
+          <div class="eco-card-header">
+            <span class="eco-badge win">Windows 10/11</span>
+            <span class="hud-label faint">Receptor PC</span>
+          </div>
+          <div class="eco-image-frame">
+            <img
+              src="../images/hero_screenshot.jpg"
+              alt="Lynow Mic Windows" onerror="this.onerror=null; this.src='../../images/hero_screenshot.jpg';" />
+          </div>
+          <h3 class="eco-title">Lynow Mic para Desktop</h3>
+          <p class="eco-caption">
+            É onde você escolhe a rede, prepara o QR Code e acompanha o nível da voz que chega. Também define para qual
+            saída do Windows o áudio será enviado.
+          </p>
+        </div>
+
+        <!-- Android Card -->
+        <div class="eco-card">
+          <div class="eco-card-header">
+            <span class="eco-badge droid">Android APK</span>
+            <span class="hud-label faint">Transmissor Móvel</span>
+          </div>
+          <div class="eco-image-frame">
+            <img
+              src="../images/android_apk_mockup.jpg"
+              alt="Lynow Mic Android APK" onerror="this.onerror=null; this.src='../../images/android_apk_mockup.jpg';" />
+          </div>
+          <h3 class="eco-title">Lynow Mic Mobile APK</h3>
+          <p class="eco-caption">
+            Escaneia o código, pede acesso ao microfone e começa a transmitir. Há controle de ganho, mute e redução de
+            ruído quando o aparelho oferece esse recurso.
+          </p>
+        </div>
+
+        <!-- Web Monitor Card -->
+        <div class="eco-card">
+          <div class="eco-card-header">
+            <span class="eco-badge web">Web Studio</span>
+            <span class="hud-label faint">Análise em Tempo Real</span>
+          </div>
+          <div class="eco-image-frame">
+            <img
+              src="../images/web_app_mockup.jpg"
+              alt="Lynow Web Studio" onerror="this.onerror=null; this.src='../../images/web_app_mockup.jpg';" />
+          </div>
+          <h3 class="eco-title">Painel visual do Lynow</h3>
+          <p class="eco-caption">
+            Um estudo visual de como o monitoramento pode evoluir: espectro, nível e informações da sessão reunidos numa
+            tela só. Esta imagem é uma prévia de interface, não um download separado nesta versão.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Sticky Eyebrow 04 -->
+    <div class="eyebrow-bar" id="manual">
+      <div class="eyebrow-inner">
+        <div class="hud-label">
+          <span class="faint">04</span>
+          <span class="divider">/</span>
+          <span>Comece Aqui</span>
+        </div>
+        <div class="hud-label faint">
+          Manual de Conexão Rápida
+        </div>
+      </div>
+    </div>
+
+    <!-- Manual Steps Section -->
+    <section class="manual-section">
+      <div class="section-intro">
+        <h2 class="section-title">
+          Abra. Escaneie. <span style="color: var(--app-ink);">Fale</span>.
+        </h2>
+        <p class="section-subtitle">
+          Na primeira vez há quatro passos. Depois, normalmente basta abrir os dois aplicativos e ler o código.
+        </p>
+      </div>
+
+      <div class="steps-container">
+        <!-- Step 1 -->
+        <div class="step-box">
+          <div class="step-counter">01</div>
+          <div class="step-content">
+            <h3>Conecte os dispositivos na mesma rede</h3>
+            <p>
+              Conecte o smartphone à rede Wi-Fi da sua casa. O computador pode estar conectado no mesmo Wi-Fi ou via
+              cabo de rede Ethernet no mesmo roteador.
+            </p>
+            <p class="hud-label faint">Dica: Evite redes Wi-Fi públicas ou de convidados para permitir o tráfego P2P.
+            </p>
+          </div>
+        </div>
+
+        <!-- Step 2 -->
+        <div class="step-box">
+          <div class="step-counter">02</div>
+          <div class="step-content">
+            <h3>Instale o driver virtual de áudio (VB-CABLE)</h3>
+            <p>
+              Para que o som do celular seja reconhecido como microfone no Discord, OBS e jogos, instale o driver
+              oficial gratuito <a href="https://vb-audio.com/Cable/" target="_blank"
+                style="color: var(--app-ink); font-weight: 600;">VB-CABLE</a> e reinicie o Windows.
+            </p>
+          </div>
+        </div>
+
+        <!-- Step 3 -->
+        <div class="step-box">
+          <div class="step-counter">03</div>
+          <div class="step-content">
+            <h3>Prepare a conexão no Windows</h3>
+            <p>
+              Abra <code>Windows/LynowMic.exe</code>. No campo <strong>Enviar áudio para</strong>, selecione
+              <strong>CABLE Input</strong>. Clique no botão <strong>Preparar conexão</strong>. O QR Code será gerado
+              imediatamente na tela.
+            </p>
+            <p class="hud-label faint">Se o Firewall do Windows exibir um aviso, permita a conexão em redes privadas.
+            </p>
+          </div>
+        </div>
+
+        <!-- Step 4 -->
+        <div class="step-box">
+          <div class="step-counter">04</div>
+          <div class="step-content">
+            <h3>Abra o Android e escaneie o QR Code</h3>
+            <p>
+              No aplicativo Android, toque em <strong>Escanear QR Code</strong> e aponte para a tela. Conceda permissão
+              de câmera e microfone. O medidor de áudio reagirá à sua fala na mesma hora!
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Config Table -->
+      <div class="spec-table-container">
+        <div class="spec-table-header">
+          <span class="hud-label strong" style="color: var(--ink-strong);">Tabela de Roteamento de Áudio</span>
+          <span class="hud-label faint">Configuração Única</span>
+        </div>
+        <table class="spec-table">
+          <thead>
+            <tr>
+              <th>Onde Configurar</th>
+              <th>O que Selecionar</th>
+              <th>Propósito</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="strong">Lynow Mic no Windows</td>
+              <td class="badge-cell"><span>CABLE Input</span></td>
+              <td>Envia a voz do celular diretamente para a entrada do driver virtual.</td>
+            </tr>
+            <tr>
+              <td class="strong">Discord / OBS / Jogos</td>
+              <td class="badge-cell"><span>CABLE Output</span></td>
+              <td>Recebe a voz como se fosse um microfone físico USB plugado no PC.</td>
+            </tr>
+            <tr>
+              <td class="strong">Teste Rápido de Fone</td>
+              <td class="badge-cell"><span>Seus Fones de Ouvido</span></td>
+              <td>Permite ouvir sua própria voz para calibrar ganho e latência.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Sticky Eyebrow 05 -->
+    <div class="eyebrow-bar" id="downloads">
+      <div class="eyebrow-inner">
+        <div class="hud-label">
+          <span class="faint">05</span>
+          <span class="divider">/</span>
+          <span>Downloads & Pacotes</span>
+        </div>
+        <div class="hud-label faint">
+          Alpha 0.1 · Standalone
+        </div>
+      </div>
+    </div>
+
+    <!-- Downloads Section -->
+    <section class="downloads-section">
+      <div class="section-intro">
+        <h2 class="section-title">
+          Escolha o arquivo do <span style="color: var(--app-ink);">seu dispositivo</span>.
+        </h2>
+        <p class="section-subtitle">
+          No Windows, o programa é portátil. No Android, o APK é instalado manualmente. Nenhum dos dois pede uma conta.
+        </p>
+      </div>
+
+      <div class="downloads-grid">
+        <!-- Windows Column -->
+        <div class="download-card highlight">
+          <div>
+            <div class="download-platform">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
+                <path
+                  d="M0 3.449L9.75 2.1v9.451H0m10.949-9.602L24 0v11.4H10.949M0 12.6h9.75v9.451L0 20.699M10.949 12.6H24V24l-12.949-1.801" />
+              </svg>
+              Windows (64-bit)
+            </div>
+            <p class="download-meta">LynowMic.exe · Portátil · .NET 8 embutido</p>
+            <ul class="download-specs-list">
+              <li>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                  <polyline points="20 6 9 17 4 12"></polyline>
+                </svg>
+                Compatível com Windows 10 e 11 x64
+              </li>
+              <li>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                  <polyline points="20 6 9 17 4 12"></polyline>
+                </svg>
+                Zero instalação: basta descompactar e abrir
+              </li>
+              <li>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                  <polyline points="20 6 9 17 4 12"></polyline>
+                </svg>
+                Medidor VU em tempo real & gerador de QR Code
+              </li>
+            </ul>
+          </div>
+          <a href="https://github.com/arthurlynow098/LynowMic/releases/download/v0.1.0-alpha/LynowMic.exe" class="btn-cta btn-primary" style="width: 100%;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <path d="M12 17V3m-6 8 6 6 6-6M19 21H5" />
+            </svg>
+            Baixar para Windows
+          </a>
+        </div>
+
+        <!-- Android Column -->
+        <div class="download-card">
+          <div>
+            <div class="download-platform">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
+                <path
+                  d="M17.523 15.3414c-.5511 0-.9993-.4486-.9993-.9997s.4482-.9993.9993-.9993c.551 0 .9993.4482.9993.9993.0001.5511-.4483.9997-.9993.9997m-11.046 0c-.5511 0-.9993-.4486-.9993-.9997s.4482-.9993.9993-.9993c.5511 0 .9993.4482.9993.9993 0 .5511-.4482.9997-.9993.9997m11.4045-6.02l1.9973-3.4592a.416.416 0 00-.1521-.5676.416.416 0 00-.5676.1521l-2.0223 3.503C15.5902 8.4111 13.8533 8.081 12 8.081s-3.5902.3301-5.1367.8687L4.841 5.4467a.4161.4161 0 00-.5677-.1521.4157.4157 0 00-.1521.5676l1.9973 3.4592C2.6889 11.1867.3432 14.6589 0 18.761h24c-.3433-4.1021-2.689-7.5743-6.1185-9.4396" />
+              </svg>
+              Android (APK)
+            </div>
+            <p class="download-meta">LynowMic-android-alpha.apk · 3.8 MB</p>
+            <ul class="download-specs-list">
+              <li>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                  <polyline points="20 6 9 17 4 12"></polyline>
+                </svg>
+                Compatível com Android 8.0 até Android 14+
+              </li>
+              <li>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                  <polyline points="20 6 9 17 4 12"></polyline>
+                </svg>
+                Scanner de QR Code embutido com câmera
+              </li>
+              <li>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                  <polyline points="20 6 9 17 4 12"></polyline>
+                </svg>
+                Controle de ganho e supressão de ruído nativa
+              </li>
+            </ul>
+          </div>
+          <a href="https://github.com/arthurlynow098/LynowMic/releases/download/v0.1.0-alpha/LynowMic-android-alpha.apk" class="btn-cta btn-secondary" style="width: 100%;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <path d="M12 17V3m-6 8 6 6 6-6M19 21H5" />
+            </svg>
+            Baixar APK Android
+          </a>
+        </div>
+
+        <!-- Source Code & Docs -->
+        <div class="download-card">
+          <div>
+            <div class="download-platform">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
+                <path
+                  d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12" />
+              </svg>
+              Código-Fonte
+            </div>
+            <p class="download-meta">WPF C# & Kotlin Android · MIT License</p>
+            <ul class="download-specs-list">
+              <li>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                  <polyline points="20 6 9 17 4 12"></polyline>
+                </svg>
+                Projetos completos com scripts de build
+              </li>
+              <li>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                  <polyline points="20 6 9 17 4 12"></polyline>
+                </svg>
+                Especificação do protocolo em docs/PROTOCOL.md
+              </li>
+              <li>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                  <polyline points="20 6 9 17 4 12"></polyline>
+                </svg>
+                Verificação de integridade via SHA256SUMS.txt
+              </li>
+            </ul>
+          </div>
+          <a href="https://github.com/arthurlynow098/LynowMic" target="_blank" rel="noopener noreferrer" class="btn-cta btn-secondary" style="width: 100%;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <polyline points="16 18 22 12 16 6"></polyline>
+              <polyline points="8 6 2 12 8 18"></polyline>
+            </svg>
+            Explorar Código
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- Sticky Eyebrow 06 -->
+    <div class="eyebrow-bar" id="faq">
+      <div class="eyebrow-inner">
+        <div class="hud-label">
+          <span class="faint">06</span>
+          <span class="divider">/</span>
+          <span>Diagnóstico & Resolução</span>
+        </div>
+        <div class="hud-label faint">
+          Perguntas Frequentes
+        </div>
+      </div>
+    </div>
+
+    <!-- Troubleshooting FAQ Section -->
+    <section class="troubleshoot-section">
+      <div class="section-intro">
+        <h2 class="section-title">
+          Se algo não conectar, <span style="color: var(--app-ink);">comece por aqui</span>.
+        </h2>
+        <p class="section-subtitle">
+          São as verificações que costumam resolver os problemas mais comuns de rede e roteamento de áudio.
+        </p>
+      </div>
+
+      <div class="faq-grid">
+        <div class="faq-item">
+          <div class="faq-q">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10"></circle>
+              <line x1="12" y1="8" x2="12" y2="12"></line>
+              <line x1="12" y1="16" x2="12.01" y2="16"></line>
+            </svg>
+            O aplicativo não conecta pelo QR Code?
+          </div>
+          <p class="faq-a">
+            Verifique se o celular e o computador estão exatamente na mesma rede Wi-Fi. Certifique-se de que o Firewall
+            do Windows permitiu o LynowMic em redes privadas. Desative temporariamente conexões VPN.
+          </p>
+        </div>
+
+        <div class="faq-item">
+          <div class="faq-q">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10"></circle>
+              <line x1="12" y1="8" x2="12" y2="12"></line>
+              <line x1="12" y1="16" x2="12.01" y2="16"></line>
+            </svg>
+            O Discord não recebe minha voz?
+          </div>
+          <p class="faq-a">
+            No Lynow Mic do Windows, a saída deve estar configurada como <strong>CABLE Input</strong>. No Discord
+            (Configurações → Voz e Vídeo), o Dispositivo de Entrada deve ser selecionado como <strong>CABLE
+              Output</strong>.
+          </p>
+        </div>
+
+        <div class="faq-item">
+          <div class="faq-q">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10"></circle>
+              <line x1="12" y1="8" x2="12" y2="12"></line>
+              <line x1="12" y1="16" x2="12.01" y2="16"></line>
+            </svg>
+            Como evitar eco ou apitos agudos?
+          </div>
+          <p class="faq-a">
+            Sempre utilize fones de ouvido no computador. Nunca reproduza o som do microfone em caixas de som no mesmo
+            ambiente do celular para evitar feedback acústico.
+          </p>
+        </div>
+
+        <div class="faq-item">
+          <div class="faq-q">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10"></circle>
+              <line x1="12" y1="8" x2="12" y2="12"></line>
+              <line x1="12" y1="16" x2="12.01" y2="16"></line>
+            </svg>
+            A transmissão falha com a tela bloqueada?
+          </div>
+          <p class="faq-a">
+            No Android, vá em Configurações → Aplicativos → Lynow Mic → Bateria, e selecione a opção "Sem Restrições"
+            para garantir que o sistema não encerre o processo em segundo plano.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+      <div class="footer-inner">
+        <div class="footer-brand">
+          <img
+            src="../images/lynow-logo.jpg"
+            alt="Logo Lynow Mic" />
+          <span>Lynow<span style="color: var(--app-ink);">Mic</span></span>
+          <span style="color: var(--faint); font-weight: 400; font-size: 12px; margin-left: 6px;">· Alpha v0.1</span>
+        </div>
+
+        <p style="font-size: 12px; color: var(--faint);">
+          Conexão direta P2P · Sem contas · Sem limites de chamada · Código Aberto
+        </p>
+
+        <ul class="footer-links">
+          <li><a href="#hero">Início</a></li>
+          <li><a href="#destaques">Destaques</a></li>
+          <li><a href="#manual">Manual</a></li>
+          <li><a href="#downloads">Downloads</a></li>
+          <li><a href="https://github.com/arthurlynow098/LynowMic" target="_blank" rel="noopener noreferrer">GitHub</a></li>
+        </ul>
+      </div>
+    </footer>
+  </div>
+
+  <!-- Toast Notification -->
+  <div id="toast">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+      <polyline points="20 6 9 17 4 12"></polyline>
+    </svg>
+    <span id="toast-msg">Link copiado para a área de transferência!</span>
+  </div>
+
+  <script>
+    // Theme Switcher Logic
+    const themeBtn = document.getElementById('theme-btn');
+    const moonIcon = document.getElementById('moon-icon');
+    const sunIcon = document.getElementById('sun-icon');
+
+    function setTheme(theme) {
+      document.documentElement.setAttribute('data-theme', theme);
+      localStorage.setItem('lynow-theme', theme);
+      if (theme === 'light') {
+        moonIcon.style.display = 'none';
+        sunIcon.style.display = 'block';
+      } else {
+        moonIcon.style.display = 'block';
+        sunIcon.style.display = 'none';
+      }
+    }
+
+    // Load saved or system theme
+    const savedTheme = localStorage.getItem('lynow-theme') || 'dark';
+    setTheme(savedTheme);
+
+    themeBtn.addEventListener('click', () => {
+      const current = document.documentElement.getAttribute('data-theme') || 'dark';
+      setTheme(current === 'dark' ? 'light' : 'dark');
+    });
+
+    // Copy link helper
+    function copyCurrentLink() {
+      navigator.clipboard.writeText(window.location.href).then(() => {
+        showToast("Link copiado para a área de transferência!");
+      }).catch(() => {
+        showToast("Link copiado!");
+      });
+    }
+
+    function showToast(msg) {
+      const toast = document.getElementById('toast');
+      const toastMsg = document.getElementById('toast-msg');
+      toastMsg.textContent = msg;
+      toast.classList.add('show');
+      setTimeout(() => {
+        toast.classList.remove('show');
+      }, 3000);
+    }
+
+    // Gentle entrance motion: enough to guide the eye without making the page feel busy.
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const progressBar = document.getElementById('scroll-progress');
+    const navLinks = [...document.querySelectorAll('.nav-link[href^="#"]')];
+    const navSections = navLinks
+      .map(link => ({ link, section: document.querySelector(link.getAttribute('href')) }))
+      .filter(item => item.section);
+
+    navLinks.forEach(link => {
+      link.addEventListener('click', event => {
+        const destination = document.querySelector(link.getAttribute('href'));
+        if (!destination) return;
+        event.preventDefault();
+        destination.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'start' });
+        history.replaceState(null, '', link.getAttribute('href'));
+      });
+    });
+
+    let scrollFrame = 0;
+    function updateScrollMotion() {
+      scrollFrame = 0;
+      const scrollTop = window.scrollY;
+      const scrollRange = Math.max(1, document.documentElement.scrollHeight - window.innerHeight);
+      progressBar.style.transform = `scaleX(${Math.min(1, scrollTop / scrollRange)})`;
+
+      let current = navSections[0];
+      navSections.forEach(item => {
+        if (item.section.getBoundingClientRect().top <= 120) current = item;
+      });
+      navSections.forEach(item => item.link.classList.toggle('active', item === current));
+
+      if (!reduceMotion) {
+        document.documentElement.style.setProperty('--ambient-shift', `${Math.min(160, scrollTop * 0.06)}px`);
+        document.documentElement.style.setProperty('--hero-parallax', `${Math.min(26, scrollTop * 0.035)}px`);
+      }
+    }
+
+    window.addEventListener('scroll', () => {
+      if (!scrollFrame) scrollFrame = requestAnimationFrame(updateScrollMotion);
+    }, { passive: true });
+    window.addEventListener('resize', updateScrollMotion, { passive: true });
+    updateScrollMotion();
+
+    const revealTargets = document.querySelectorAll(
+      '.section-intro, .feature-card, .eco-card, .step-box, .spec-table-container, .download-card, .faq-item, .screenshot-figure'
+    );
+
+    if (!reduceMotion && 'IntersectionObserver' in window) {
+      document.documentElement.classList.add('motion-ready');
+      revealTargets.forEach((element, index) => {
+        element.classList.add('reveal-on-scroll');
+        element.style.setProperty('--reveal-delay', `${(index % 3) * 70}ms`);
+      });
+
+      const revealObserver = new IntersectionObserver((entries, observer) => {
+        entries.forEach(entry => {
+          if (!entry.isIntersecting) return;
+          entry.target.classList.add('is-visible');
+          observer.unobserve(entry.target);
+        });
+      }, { threshold: 0.12, rootMargin: '0px 0px -40px' });
+
+      revealTargets.forEach(element => revealObserver.observe(element));
+    }
+  </script>
+</body>
+
+</html>
